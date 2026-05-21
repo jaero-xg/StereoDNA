@@ -1,0 +1,119 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id            String   @id @default(uuid())
+  spotifyId     String   @unique
+  displayName   String
+  email         String   @unique
+  avatar        String?
+  country       String?
+  product       String?
+  followers     Int      @default(0)
+  accessToken   String?
+  refreshToken  String?
+  tokenExpiresAt DateTime?
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  listeningHistory ListeningHistory[]
+  topArtists      TopArtist[]
+  topTracks       TopTrack[]
+
+  @@index([spotifyId])
+  @@index([email])
+}
+
+model Track {
+  id            String   @id @default(uuid())
+  spotifyTrackId String  @unique
+  name          String
+  artist        String
+  album         String
+  albumArt      String?
+  duration      Int      @default(0)
+  explicit      Boolean  @default(false)
+  popularity    Int      @default(0)
+  previewUrl    String?
+  spotifyUrl    String?
+  genres        String[] @default([])
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  listeningHistory ListeningHistory[]
+  topTracks       TopTrack[]
+
+  @@index([spotifyTrackId])
+}
+
+model Artist {
+  id            String   @id @default(uuid())
+  spotifyArtistId String @unique
+  name          String
+  image         String?
+  genres        String[] @default([])
+  popularity    Int      @default(0)
+  followers     Int      @default(0)
+  spotifyUrl    String?
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  topArtists    TopArtist[]
+
+  @@index([spotifyArtistId])
+}
+
+model ListeningHistory {
+  id          String   @id @default(uuid())
+  userId      String
+  trackId     String
+  playedAt    DateTime
+  context     String?
+  progressMs  Int      @default(0)
+  createdAt   DateTime @default(now())
+
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  track       Track    @relation(fields: [trackId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([playedAt])
+  @@index([userId, playedAt])
+}
+
+model TopArtist {
+  id          String   @id @default(uuid())
+  userId      String
+  artistId    String
+  timeRange   String   // short_term, medium_term, long_term
+  rank        Int
+  playCount   Int      @default(0)
+  updatedAt   DateTime @updatedAt
+
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  artist      Artist   @relation(fields: [artistId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, artistId, timeRange])
+  @@index([userId, timeRange])
+}
+
+model TopTrack {
+  id          String   @id @default(uuid())
+  userId      String
+  trackId     String
+  timeRange   String
+  rank        Int
+  playCount   Int      @default(0)
+  updatedAt   DateTime @updatedAt
+
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  track       Track    @relation(fields: [trackId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, trackId, timeRange])
+  @@index([userId, timeRange])
+}

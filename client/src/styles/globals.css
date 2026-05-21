@@ -1,0 +1,135 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  html {
+    scroll-behavior: smooth;
+  }
+
+  body {
+    @apply bg-background text-text antialiased;
+    font-family: 'Inter', system-ui, sans-serif;
+  }
+
+  ::selection {
+    @apply bg-primary/30 text-white;
+  }
+
+  ::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+  }
+
+  ::-webkit-scrollbar-track {
+    @apply bg-background;
+  }
+
+  ::-webkit-scrollbar-thumb {
+    @apply bg-surface-light rounded-full;
+  }
+
+  ::-webkit-scrollbar-thumb:hover {
+    @apply bg-primary/50;
+  }
+}
+
+@layer components {
+  .glass {
+    @apply bg-white/5 backdrop-blur-xl border border-white/10;
+  }
+
+  .glass-card {
+    @apply bg-surface/80 backdrop-blur-xl border border-border rounded-2xl;
+  }
+
+  .glass-panel {
+    @apply bg-surface-light/60 backdrop-blur-2xl border border-white/5 rounded-xl;
+  }
+
+  .gradient-text {
+    @apply bg-gradient-to-r from-primary via-accent to-accent-pink bg-clip-text text-transparent;
+  }
+
+  .gradient-border {
+    @apply relative;
+  }
+
+  .gradient-border::before {
+    content: '';
+    @apply absolute inset-0 rounded-2xl bg-gradient-to-r from-primary via-accent to-accent-pink opacity-20;
+    mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+    mask-composite: exclude;
+    -webkit-mask-composite: xor;
+    padding: 1px;
+    pointer-events: none;
+  }
+
+  .glow-effect {
+    @apply relative;
+  }
+
+  .glow-effect::after {
+    content: '';
+    @apply absolute -inset-1 rounded-2xl bg-gradient-to-r from-primary/20 via-accent/20 to-accent-pink/20 blur-xl opacity-0 transition-opacity duration-500;
+    z-index: -1;
+  }
+
+  .glow-effect:hover::after {
+    @apply opacity-100;
+  }
+
+  .text-shadow {
+    text-shadow: 0 2px 10px rgba(0,0,0,0.3);
+  }
+
+  .heatmap-cell {
+    @apply w-3 h-3 rounded-sm transition-all duration-300;
+  }
+
+  .heatmap-cell:hover {
+    @apply scale-125 ring-2 ring-white/20;
+  }
+
+  .stat-card {
+    @apply glass-card p-6 hover:bg-surface-light/80 transition-all duration-300;
+  }
+
+  .track-row {
+    @apply flex items-center gap-4 p-3 rounded-xl hover:bg-white/5 transition-all duration-200 cursor-pointer;
+  }
+
+  .artist-card {
+    @apply relative overflow-hidden rounded-2xl group cursor-pointer;
+  }
+
+  .artist-card img {
+    @apply transition-transform duration-500 group-hover:scale-110;
+  }
+
+  .artist-card .overlay {
+    @apply absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300;
+  }
+
+  .artist-card .info {
+    @apply absolute bottom-0 left-0 right-0 p-4 translate-y-4 group-hover:translate-y-0 transition-transform duration-300;
+  }
+}
+
+@layer utilities {
+  .text-balance {
+    text-wrap: balance;
+  }
+
+  .perspective-1000 {
+    perspective: 1000px;
+  }
+
+  .preserve-3d {
+    transform-style: preserve-3d;
+  }
+
+  .backface-hidden {
+    backface-visibility: hidden;
+  }
+}
