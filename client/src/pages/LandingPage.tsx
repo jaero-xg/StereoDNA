@@ -9,7 +9,8 @@ import {
   Music, BarChart3, Flame, Brain, Sparkles, Zap,
   TrendingUp, Clock, Users, Radio, Headphones, Heart
 } from 'lucide-react'
-import { useEffect } from 'react'
+import { useEffect, useState } from 'react'
+import toast from 'react-hot-toast'
 
 const features = [
   {
@@ -60,6 +61,7 @@ const stats = [
 export default function LandingPage() {
   const { isAuthenticated } = useAppStore()
   const navigate = useNavigate()
+  const [isConnecting, setIsConnecting] = useState(false)
 
   useEffect(() => {
     if (isAuthenticated) {
@@ -67,8 +69,43 @@ export default function LandingPage() {
     }
   }, [isAuthenticated, navigate])
 
-  const handleConnect = () => {
-    window.location.href = 'http://localhost:3001/api/auth/spotify'
+  const handleConnect = async () => {
+    console.log('Connecting to Spotify...')
+    setIsConnecting(true)
+
+    try {
+      // Use relative URL so Vite proxy handles it
+      const response = await fetch('/api/health', {
+        method: 'GET',
+        credentials: 'include'
+      })
+
+      if (response.ok) {
+        console.log('Backend is reachable via proxy, redirecting...')
+        // Use relative URL for auth - Vite proxy will forward to backend
+        window.location.href = '/api/auth/spotify'
+      } else {
+        throw new Error(`Health check failed: ${response.status}`)
+      }
+    } catch (err) {
+      console.error('Backend connection error:', err)
+
+      // Fallback: try direct connection
+      try {
+        const directResponse = await fetch('http://localhost:3001/api/health', {
+          method: 'GET',
+          mode: 'no-cors'
+        })
+        console.log('Direct connection might work, trying...')
+        window.location.href = 'http://localhost:3001/api/auth/spotify'
+        return
+      } catch (directErr) {
+        console.error('Direct connection also failed:', directErr)
+      }
+
+      toast.error('Cannot connect to backend server. Make sure it is running on port 3001.')
+      setIsConnecting(false)
+    }
   }
 
   return (
@@ -106,10 +143,11 @@ export default function LandingPage() {
               <Button
                 size="lg"
                 onClick={handleConnect}
+                isLoading={isConnecting}
                 className="bg-gradient-to-r from-primary to-accent hover:from-primary-light hover:to-accent text-white shadow-xl shadow-primary/25"
               >
                 <Music className="w-5 h-5" />
-                Connect with Spotify
+                {isConnecting ? 'Connecting...' : 'Connect with Spotify'}
               </Button>
               <Button variant="outline" size="lg" onClick={() => navigate('/dashboard')}>
                 Explore Demo
@@ -292,10 +330,11 @@ export default function LandingPage() {
               <Button
                 size="lg"
                 onClick={handleConnect}
+                isLoading={isConnecting}
                 className="bg-gradient-to-r from-primary to-accent hover:from-primary-light hover:to-accent text-white shadow-xl shadow-primary/25"
               >
                 <Music className="w-5 h-5" />
-                Get Started Free
+                {isConnecting ? 'Connecting...' : 'Get Started Free'}
               </Button>
             </div>
           </motion.div>

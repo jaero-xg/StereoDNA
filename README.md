@@ -5,7 +5,6 @@ A premium music analytics dashboard that connects to the Spotify API and visuali
 ## Tech Stack
 
 ### Frontend
-
 - React 18 + TypeScript
 - Vite
 - Tailwind CSS
@@ -15,7 +14,6 @@ A premium music analytics dashboard that connects to the Spotify API and visuali
 - Axios
 
 ### Backend
-
 - Node.js + Express
 - TypeScript
 - Prisma ORM
@@ -25,20 +23,19 @@ A premium music analytics dashboard that connects to the Spotify API and visuali
 
 ## Features
 
-- **Spotify OAuth Authentication** - Secure login with token refresh
-- **Interactive Dashboard** - Top artists, tracks, recently played
-- **Listening Heatmap** - GitHub-style activity visualization
-- **Analytics & Charts** - Genre distribution, listening trends
-- **AI Music Personality** - Fun personality archetypes
-- **Music Taste Roast** - Humorous roasts about your habits
-- **Profile System** - Avatar, display name, music identity
-- **Responsive Design** - Mobile and desktop optimized
-- **Dark Mode** - Cyberpunk-inspired glassmorphism UI
+- 🔐 **Spotify OAuth Authentication** - Secure login with token refresh
+- 📊 **Interactive Dashboard** - Top artists, tracks, recently played
+- 🔥 **Listening Heatmap** - GitHub-style activity visualization
+- 📈 **Analytics & Charts** - Genre distribution, listening trends
+- 🧠 **AI Music Personality** - Fun personality archetypes
+- 🔥 **Music Taste Roast** - Humorous roasts about your habits
+- 👤 **Profile System** - Avatar, display name, music identity
+- 📱 **Responsive Design** - Mobile and desktop optimized
+- 🌙 **Dark Mode** - Cyberpunk-inspired glassmorphism UI
 
 ## Getting Started
 
 ### Prerequisites
-
 - Node.js 18+
 - PostgreSQL 14+
 - Spotify Developer Account
@@ -80,14 +77,12 @@ npm run dev
 ## Deployment
 
 ### Frontend (Vercel)
-
 ```bash
 cd client
 vercel --prod
 ```
 
 ### Backend (Railway/Render)
-
 ```bash
 cd server
 # Set environment variables in dashboard
@@ -96,23 +91,23 @@ cd server
 
 ## API Endpoints
 
-| Method | Endpoint                     | Description             |
-| ------ | ---------------------------- | ----------------------- |
-| GET    | `/api/auth/spotify`          | Initiate OAuth          |
-| GET    | `/api/auth/callback`         | OAuth callback          |
-| POST   | `/api/auth/refresh`          | Refresh token           |
-| POST   | `/api/auth/logout`           | Logout                  |
-| GET    | `/api/users/me`              | Get current user        |
-| GET    | `/api/dashboard`             | Get full dashboard      |
-| GET    | `/api/tracks/top`            | Get top tracks          |
-| GET    | `/api/tracks/recent`         | Get recently played     |
-| GET    | `/api/artists/top`           | Get top artists         |
-| GET    | `/api/analytics/stats`       | Get listening stats     |
-| GET    | `/api/analytics/heatmap`     | Get heatmap data        |
-| GET    | `/api/analytics/genres`      | Get genre distribution  |
-| GET    | `/api/analytics/personality` | Get personality profile |
-| GET    | `/api/analytics/roast`       | Get music roast         |
-| GET    | `/api/analytics/trends`      | Get listening trends    |
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| GET | `/api/auth/spotify` | Initiate OAuth |
+| GET | `/api/auth/callback` | OAuth callback |
+| POST | `/api/auth/refresh` | Refresh token |
+| POST | `/api/auth/logout` | Logout |
+| GET | `/api/users/me` | Get current user |
+| GET | `/api/dashboard` | Get full dashboard |
+| GET | `/api/tracks/top` | Get top tracks |
+| GET | `/api/tracks/recent` | Get recently played |
+| GET | `/api/artists/top` | Get top artists |
+| GET | `/api/analytics/stats` | Get listening stats |
+| GET | `/api/analytics/heatmap` | Get heatmap data |
+| GET | `/api/analytics/genres` | Get genre distribution |
+| GET | `/api/analytics/personality` | Get personality profile |
+| GET | `/api/analytics/roast` | Get music roast |
+| GET | `/api/analytics/trends` | Get listening trends |
 
 ## License
 

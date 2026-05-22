@@ -88,18 +88,24 @@ router.get('/recent', authenticateToken, async (req: AuthenticatedRequest, res) 
         create: item.track,
       })
 
-      await prisma.listeningHistory.upsert({
+      // Use createMany-style dedup: skip if this exact play already exists
+      const exists = await prisma.listeningHistory.findFirst({
         where: {
-          id: `${req.user!.id}_${track.id}_${item.playedAt}`,
-        },
-        update: {},
-        create: {
           userId: req.user!.id,
           trackId: track.id,
           playedAt: new Date(item.playedAt),
-          context: item.context,
         },
       })
+      if (!exists) {
+        await prisma.listeningHistory.create({
+          data: {
+            userId: req.user!.id,
+            trackId: track.id,
+            playedAt: new Date(item.playedAt),
+            context: item.context,
+          },
+        })
+      }
     }
 
     res.json(history)

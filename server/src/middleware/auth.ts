@@ -42,16 +42,6 @@ export async function authenticateToken(
       return res.status(401).json({ error: 'User not found' })
     }
 
-    // Check if token is expired and refresh if needed
-    if (user.tokenExpiresAt && new Date() > user.tokenExpiresAt) {
-      if (!user.refreshToken) {
-        return res.status(401).json({ error: 'Token expired and no refresh token' })
-      }
-
-      // Token refresh will be handled by the route or a separate service
-      // For now, just pass the potentially expired token
-    }
-
     req.user = {
       id: user.id,
       spotifyId: user.spotifyId,

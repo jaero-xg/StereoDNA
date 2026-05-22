@@ -1,65 +1,77 @@
-import { useEffect, useState } from 'react'
-import { motion } from 'framer-motion'
-import { useAppStore } from '@/store'
-import { spotifyApi } from '@/lib/api'
-import { formatDuration, formatNumber, formatRelativeTime, getPersonalityEmoji, getMoodColor } from '@/lib/utils'
-import PageTransition from '@/components/animations/PageTransition'
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/Card'
-import { Button } from '@/components/ui/Button'
-import { SkeletonCard } from '@/components/ui/Skeleton'
-import { Badge } from '@/components/ui/Badge'
-import GenrePieChart from '@/components/charts/GenrePieChart'
-import TrendsChart from '@/components/charts/TrendsChart'
-import ArtistsBarChart from '@/components/charts/ArtistsBarChart'
-import ListeningHeatmap from '@/components/heatmap/ListeningHeatmap'
-import type { DashboardData, TimeRange } from '@/types'
+import { useEffect, useState } from "react";
+import { motion } from "framer-motion";
+import { useAppStore } from "@/store";
+import { spotifyApi } from "@/lib/api";
 import {
-  Clock, Music, Users, Disc, TrendingUp, Flame,
-  Brain, Sparkles, Zap, Calendar, Headphones,
-  ChevronRight, Play, ExternalLink, Share2
-} from 'lucide-react'
-import toast from 'react-hot-toast'
+  formatNumber,
+  formatRelativeTime,
+  getPersonalityEmoji,
+} from "@/lib/utils";
+import PageTransition from "@/components/animations/PageTransition";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/Card";
+import { Button } from "@/components/ui/Button";
+import { SkeletonCard } from "@/components/ui/Skeleton";
+import { Badge } from "@/components/ui/Badge";
+import GenrePieChart from "@/components/charts/GenrePieChart";
+import TrendsChart from "@/components/charts/TrendsChart";
+import ArtistsBarChart from "@/components/charts/ArtistsBarChart";
+import ListeningHeatmap from "@/components/heatmap/ListeningHeatmap";
+import type { DashboardData, TimeRange } from "@/types";
+import {
+  Clock,
+  Music,
+  Users,
+  Disc,
+  Flame,
+  Brain,
+  Sparkles,
+  Headphones,
+  ChevronRight,
+  Play,
+} from "lucide-react";
+import toast from "react-hot-toast";
 
 const timeRanges: { value: TimeRange; label: string }[] = [
-  { value: 'short_term', label: 'Last 4 Weeks' },
-  { value: 'medium_term', label: 'Last 6 Months' },
-  { value: 'long_term', label: 'All Time' },
-]
+  { value: "short_term", label: "Last 4 Weeks" },
+  { value: "medium_term", label: "Last 6 Months" },
+  { value: "long_term", label: "All Time" },
+];
 
 const containerVariants = {
   hidden: { opacity: 0 },
   visible: {
     opacity: 1,
-    transition: { staggerChildren: 0.1 }
-  }
-}
+    transition: { staggerChildren: 0.1 },
+  },
+};
 
 const itemVariants = {
   hidden: { opacity: 0, y: 20 },
-  visible: { opacity: 1, y: 0 }
-}
+  visible: { opacity: 1, y: 0 },
+};
 
 export default function DashboardPage() {
-  const { timeRange, setTimeRange } = useAppStore()
-  const [data, setData] = useState<DashboardData | null>(null)
-  const [loading, setLoading] = useState(true)
+  const { timeRange, setTimeRange } = useAppStore();
+  const [data, setData] = useState<DashboardData | null>(null);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     const fetchDashboard = async () => {
       try {
-        setLoading(true)
-        const response = await spotifyApi.getDashboard(timeRange)
-        setData(response.data)
+        setLoading(true);
+        await spotifyApi.getRecentlyPlayed(50);
+        const response = await spotifyApi.getDashboard(timeRange);
+        setData(response.data);
       } catch (error) {
-        console.error('Failed to load dashboard:', error)
-        toast.error('Failed to load dashboard data')
+        console.error("Failed to load dashboard:", error);
+        toast.error("Failed to load dashboard data");
       } finally {
-        setLoading(false)
+        setLoading(false);
       }
-    }
+    };
 
-    fetchDashboard()
-  }, [timeRange])
+    fetchDashboard();
+  }, [timeRange]);
 
   if (loading) {
     return (
@@ -72,7 +84,7 @@ export default function DashboardPage() {
           </div>
         </div>
       </PageTransition>
-    )
+    );
   }
 
   if (!data) {
@@ -82,10 +94,21 @@ export default function DashboardPage() {
           <p className="text-text-muted">Failed to load dashboard data</p>
         </div>
       </PageTransition>
-    )
+    );
   }
 
-  const { user, stats, topArtists, topTracks, recentlyPlayed, heatmap, genres, personality, roast, listeningTrends } = data
+  const {
+    user,
+    stats,
+    topArtists,
+    topTracks,
+    recentlyPlayed,
+    heatmap,
+    genres,
+    personality,
+    roast,
+    listeningTrends,
+  } = data;
 
   return (
     <PageTransition>
@@ -108,7 +131,8 @@ export default function DashboardPage() {
               )}
               <div>
                 <h1 className="text-2xl font-bold text-white font-display">
-                  Welcome back, <span className="gradient-text">{user.displayName}</span>
+                  Welcome back,{" "}
+                  <span className="gradient-text">{user.displayName}</span>
                 </h1>
                 <p className="text-text-muted text-sm">
                   Here's what's happening with your music DNA
@@ -123,8 +147,8 @@ export default function DashboardPage() {
                   onClick={() => setTimeRange(range.value)}
                   className={`px-4 py-2 rounded-lg text-sm font-medium transition-all ${
                     timeRange === range.value
-                      ? 'bg-primary text-white shadow-lg shadow-primary/25'
-                      : 'text-text-muted hover:text-text'
+                      ? "bg-primary text-white shadow-lg shadow-primary/25"
+                      : "text-text-muted hover:text-text"
                   }`}
                 >
                   {range.label}
@@ -143,19 +167,47 @@ export default function DashboardPage() {
           {/* Stats Overview */}
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
             {[
-              { icon: Headphones, label: 'Total Minutes', value: formatNumber(stats.totalMinutes), color: 'text-primary-light', bg: 'bg-primary/10' },
-              { icon: Music, label: 'Tracks Played', value: formatNumber(stats.totalTracks), color: 'text-accent', bg: 'bg-accent/10' },
-              { icon: Users, label: 'Unique Artists', value: formatNumber(stats.uniqueArtists), color: 'text-accent-pink', bg: 'bg-accent-pink/10' },
-              { icon: Flame, label: 'Day Streak', value: `${stats.streakDays} days`, color: 'text-accent-orange', bg: 'bg-accent-orange/10' },
-            ].map((stat, i) => (
+              {
+                icon: Headphones,
+                label: "Total Minutes",
+                value: formatNumber(stats.totalMinutes),
+                color: "text-primary-light",
+                bg: "bg-primary/10",
+              },
+              {
+                icon: Music,
+                label: "Tracks Played",
+                value: formatNumber(stats.totalTracks),
+                color: "text-accent",
+                bg: "bg-accent/10",
+              },
+              {
+                icon: Users,
+                label: "Unique Artists",
+                value: formatNumber(stats.uniqueArtists),
+                color: "text-accent-pink",
+                bg: "bg-accent-pink/10",
+              },
+              {
+                icon: Flame,
+                label: "Day Streak",
+                value: `${stats.streakDays} days`,
+                color: "text-accent-orange",
+                bg: "bg-accent-orange/10",
+              },
+            ].map((stat) => (
               <motion.div key={stat.label} variants={itemVariants}>
                 <Card className="p-5">
                   <div className="flex items-center gap-3">
-                    <div className={`w-10 h-10 rounded-lg ${stat.bg} flex items-center justify-center`}>
+                    <div
+                      className={`w-10 h-10 rounded-lg ${stat.bg} flex items-center justify-center`}
+                    >
                       <stat.icon className={`w-5 h-5 ${stat.color}`} />
                     </div>
                     <div>
-                      <p className="text-2xl font-bold text-white">{stat.value}</p>
+                      <p className="text-2xl font-bold text-white">
+                        {stat.value}
+                      </p>
                       <p className="text-xs text-text-muted">{stat.label}</p>
                     </div>
                   </div>
@@ -171,7 +223,7 @@ export default function DashboardPage() {
               <Card className="h-full">
                 <CardHeader className="flex flex-row items-center justify-between">
                   <CardTitle>Top Artists</CardTitle>
-                  <Badge variant="primary">{timeRange.replace('_', ' ')}</Badge>
+                  <Badge variant="primary">{timeRange.replace("_", " ")}</Badge>
                 </CardHeader>
                 <CardContent>
                   <div className="space-y-3">
@@ -188,17 +240,27 @@ export default function DashboardPage() {
                         </span>
                         <div className="w-12 h-12 rounded-lg bg-gradient-to-br from-primary/20 to-accent/20 flex items-center justify-center overflow-hidden">
                           {artist.artist.image ? (
-                            <img src={artist.artist.image} alt={artist.artist.name} className="w-full h-full object-cover" />
+                            <img
+                              src={artist.artist.image}
+                              alt={artist.artist.name}
+                              className="w-full h-full object-cover"
+                            />
                           ) : (
                             <Music className="w-6 h-6 text-text-muted" />
                           )}
                         </div>
                         <div className="flex-1 min-w-0">
-                          <p className="font-medium text-white truncate">{artist.artist.name}</p>
-                          <p className="text-sm text-text-muted">{artist.playCount} plays</p>
+                          <p className="font-medium text-white truncate">
+                            {artist.artist.name}
+                          </p>
+                          <p className="text-sm text-text-muted">
+                            {artist.playCount} plays
+                          </p>
                         </div>
                         <div className="text-right">
-                          <p className="text-sm text-text-muted">{artist.totalMinutes} min</p>
+                          <p className="text-sm text-text-muted">
+                            {artist.totalMinutes} min
+                          </p>
                         </div>
                         <ChevronRight className="w-4 h-4 text-text-dim opacity-0 group-hover:opacity-100 transition-opacity" />
                       </motion.div>
@@ -225,21 +287,31 @@ export default function DashboardPage() {
                   >
                     {getPersonalityEmoji(personality.archetype)}
                   </motion.div>
-                  <h3 className="text-xl font-bold text-white mb-2">{personality.archetype}</h3>
-                  <p className="text-sm text-text-muted mb-4">{personality.description}</p>
+                  <h3 className="text-xl font-bold text-white mb-2">
+                    {personality.archetype}
+                  </h3>
+                  <p className="text-sm text-text-muted mb-4">
+                    {personality.description}
+                  </p>
                   <div className="flex flex-wrap gap-2 justify-center mb-4">
-                    {personality.traits.map(trait => (
-                      <Badge key={trait} variant="primary">{trait}</Badge>
+                    {personality.traits.map((trait) => (
+                      <Badge key={trait} variant="primary">
+                        {trait}
+                      </Badge>
                     ))}
                   </div>
                   <div className="grid grid-cols-2 gap-3 text-sm">
                     <div className="bg-surface-light/60 rounded-lg p-2">
                       <p className="text-text-dim">Style</p>
-                      <p className="text-white font-medium">{personality.listeningStyle}</p>
+                      <p className="text-white font-medium">
+                        {personality.listeningStyle}
+                      </p>
                     </div>
                     <div className="bg-surface-light/60 rounded-lg p-2">
                       <p className="text-text-dim">Time</p>
-                      <p className="text-white font-medium">{personality.timeOfDay}</p>
+                      <p className="text-white font-medium">
+                        {personality.timeOfDay}
+                      </p>
                     </div>
                   </div>
                   <div className="mt-4 space-y-2">
@@ -282,15 +354,28 @@ export default function DashboardPage() {
                   </div>
                   <div className="flex-1">
                     <div className="flex items-center gap-2 mb-2">
-                      <h3 className="font-semibold text-white">Music Taste Roast</h3>
-                      <Badge variant={roast.severity === 'savage' ? 'warning' : roast.severity === 'medium' ? 'accent' : 'default'}>
+                      <h3 className="font-semibold text-white">
+                        Music Taste Roast
+                      </h3>
+                      <Badge
+                        variant={
+                          roast.severity === "savage"
+                            ? "warning"
+                            : roast.severity === "medium"
+                              ? "accent"
+                              : "default"
+                        }
+                      >
                         {roast.severity}
                       </Badge>
                     </div>
                     <p className="text-text-muted italic">"{roast.roast}"</p>
                     <div className="flex gap-2 mt-3">
-                      {roast.categories.map(cat => (
-                        <span key={cat} className="text-xs text-text-dim bg-surface-light px-2 py-1 rounded-full">
+                      {roast.categories.map((cat) => (
+                        <span
+                          key={cat}
+                          className="text-xs text-text-dim bg-surface-light px-2 py-1 rounded-full"
+                        >
                           #{cat}
                         </span>
                       ))}
@@ -345,17 +430,27 @@ export default function DashboardPage() {
                     >
                       <div className="w-12 h-12 rounded-lg bg-gradient-to-br from-surface-light to-surface-hover flex items-center justify-center overflow-hidden flex-shrink-0">
                         {track.track.albumArt ? (
-                          <img src={track.track.albumArt} alt={track.track.name} className="w-full h-full object-cover" />
+                          <img
+                            src={track.track.albumArt}
+                            alt={track.track.name}
+                            className="w-full h-full object-cover"
+                          />
                         ) : (
                           <Music className="w-5 h-5 text-text-muted" />
                         )}
                       </div>
                       <div className="flex-1 min-w-0">
-                        <p className="text-sm font-medium text-white truncate">{track.track.name}</p>
-                        <p className="text-xs text-text-muted truncate">{track.track.artist}</p>
+                        <p className="text-sm font-medium text-white truncate">
+                          {track.track.name}
+                        </p>
+                        <p className="text-xs text-text-muted truncate">
+                          {track.track.artist}
+                        </p>
                       </div>
                       <div className="text-right flex-shrink-0">
-                        <p className="text-xs text-text-muted">{track.playCount}x</p>
+                        <p className="text-xs text-text-muted">
+                          {track.playCount}x
+                        </p>
                         {track.track.previewUrl && (
                           <button className="opacity-0 group-hover:opacity-100 transition-opacity">
                             <Play className="w-4 h-4 text-primary-light" />
@@ -390,14 +485,22 @@ export default function DashboardPage() {
                     >
                       <div className="w-10 h-10 rounded-lg bg-surface-light flex items-center justify-center overflow-hidden flex-shrink-0">
                         {item.track.albumArt ? (
-                          <img src={item.track.albumArt} alt={item.track.name} className="w-full h-full object-cover" />
+                          <img
+                            src={item.track.albumArt}
+                            alt={item.track.name}
+                            className="w-full h-full object-cover"
+                          />
                         ) : (
                           <Music className="w-4 h-4 text-text-muted" />
                         )}
                       </div>
                       <div className="flex-1 min-w-0">
-                        <p className="text-sm text-white truncate">{item.track.name}</p>
-                        <p className="text-xs text-text-muted truncate">{item.track.artist}</p>
+                        <p className="text-sm text-white truncate">
+                          {item.track.name}
+                        </p>
+                        <p className="text-xs text-text-muted truncate">
+                          {item.track.artist}
+                        </p>
                       </div>
                       <span className="text-xs text-text-dim flex-shrink-0">
                         {formatRelativeTime(item.playedAt)}
@@ -411,5 +514,5 @@ export default function DashboardPage() {
         </motion.div>
       </div>
     </PageTransition>
-  )
+  );
 }

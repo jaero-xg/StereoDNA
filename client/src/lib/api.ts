@@ -1,9 +1,9 @@
 import axios from 'axios'
 
-const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:3001'
+const API_BASE_URL = import.meta.env.VITE_API_URL || ''
 
 export const api = axios.create({
-  baseURL: `${API_BASE_URL}/api`,
+  baseURL: API_BASE_URL ? `${API_BASE_URL}/api` : '/api',
   withCredentials: true,
   headers: {
     'Content-Type': 'application/json',
@@ -31,7 +31,7 @@ api.interceptors.response.use(
 
       try {
         const refreshResponse = await axios.post(
-          `${API_BASE_URL}/api/auth/refresh`,
+          '/api/auth/refresh',
           {},
           { withCredentials: true }
         )
@@ -43,7 +43,7 @@ api.interceptors.response.use(
         return api(originalRequest)
       } catch (refreshError) {
         localStorage.removeItem('access_token')
-        window.location.href = '/login'
+        window.location.href = '/'
         return Promise.reject(refreshError)
       }
     }
@@ -54,7 +54,7 @@ api.interceptors.response.use(
 
 export const spotifyApi = {
   login: () => {
-    window.location.href = `${API_BASE_URL}/api/auth/spotify`
+    window.location.href = '/api/auth/spotify'
   },
 
   logout: async () => {

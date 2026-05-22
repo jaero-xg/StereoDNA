@@ -251,10 +251,10 @@ router.get('/', authenticateToken, async (req: AuthenticatedRequest, res) => {
     }))
 
     // Personality (simplified)
+    const avgDailyMinutes = Math.floor(totalMinutes / daysSinceFirst)
     const isNightOwl = peakHour >= 22 || peakHour <= 4
     const isExplorer = uniqueArtists > 50
     const isHeavy = avgDailyMinutes > 180
-    const avgDailyMinutes = Math.floor(totalMinutes / daysSinceFirst)
 
     let archetype = 'Sonic Wanderer'
     let description = 'You traverse the vast landscape of music with an open mind.'
@@ -286,7 +286,7 @@ router.get('/', authenticateToken, async (req: AuthenticatedRequest, res) => {
     }
 
     // Roast
-    const roasts: { text: string; severity: 'mild' | 'medium' | 'savage'; categories: string[] } = []
+    const roasts: { text: string; severity: 'mild' | 'medium' | 'savage'; categories: string[] }[] = []
 
     if (topTracks[0]?.playCount > 30) {
       roasts.push({
