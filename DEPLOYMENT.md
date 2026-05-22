@@ -1,6 +1,7 @@
-# 🚀 StereoDNA Deployment Guide
+# StereoDNA Deployment Guide
 
 ## Prerequisites
+
 - Spotify Developer Account
 - Vercel Account (Frontend)
 - Railway/Render Account (Backend)
@@ -18,21 +19,25 @@
 ## Step 2: Database Setup
 
 ### Option A: Railway PostgreSQL
+
 1. In Railway dashboard, create a new PostgreSQL database
 2. Copy the connection string
 
 ### Option B: Supabase
+
 1. Create a new project
 2. Go to Database → Connection String
 3. Copy the URI
 
 ### Option C: Neon
+
 1. Create a new project
 2. Copy the connection string
 
 ## Step 3: Backend Deployment (Railway/Render)
 
 ### Railway
+
 1. Connect your GitHub repo to Railway
 2. Set root directory to `/server`
 3. Add environment variables:
@@ -49,6 +54,7 @@
 5. Start command: `npm start`
 
 ### Render
+
 1. Create a new Web Service
 2. Connect your repo
 3. Set root directory to `server`
@@ -75,6 +81,7 @@ After deployment, update your Spotify app settings with the production redirect 
 ## Environment Variables Reference
 
 ### Backend (.env)
+
 ```
 DATABASE_URL="postgresql://user:password@host:port/db?schema=public"
 SPOTIFY_CLIENT_ID=your_spotify_client_id
@@ -87,6 +94,7 @@ PORT=3001
 ```
 
 ### Frontend (.env)
+
 ```
 VITE_API_URL=https://api.yourapp.com
 ```
@@ -101,20 +109,26 @@ VITE_API_URL=https://api.yourapp.com
 ## Troubleshooting
 
 ### CORS Issues
+
 Ensure your backend CORS settings include your frontend URL:
+
 ```javascript
-app.use(cors({
-  origin: process.env.CLIENT_URL,
-  credentials: true,
-}))
+app.use(
+  cors({
+    origin: process.env.CLIENT_URL,
+    credentials: true,
+  }),
+);
 ```
 
 ### Database Connection
+
 - Check DATABASE_URL format
 - Ensure SSL is enabled for production PostgreSQL
 - Verify network access rules
 
 ### Authentication Failures
+
 - Verify SPOTIFY_REDIRECT_URI matches exactly
 - Check JWT_SECRET is set and consistent
 - Ensure cookies are properly configured for cross-domain
