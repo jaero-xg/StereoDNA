@@ -1,6 +1,6 @@
-# 🎵 StereoDNA
+# StereoDNA
 
-A premium music analytics dashboard that connects to the Spotify API and visualizes your music habits in a beautiful, interactive, and animated way.
+A premium music analytics dashboard that connects to the Spotify API and visualizes your music habits in a minimal, interactive, and Analytic way.
 
 ## Tech Stack
 
