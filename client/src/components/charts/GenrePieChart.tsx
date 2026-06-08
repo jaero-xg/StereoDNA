@@ -1,36 +1,48 @@
-import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip, Legend } from 'recharts'
-import { Card, CardContent, CardHeader, CardTitle } from '../ui/Card'
-import type { GenreDistribution } from '@/types'
+import {
+  PieChart,
+  Pie,
+  Cell,
+  ResponsiveContainer,
+  Tooltip,
+  Legend,
+} from "recharts";
+import { Card, CardContent, CardHeader, CardTitle } from "../ui/Card";
+import type { GenreDistribution } from "@/types";
 
 interface GenrePieChartProps {
-  data: GenreDistribution[]
+  data: GenreDistribution[];
 }
 
-const RADIAN = Math.PI / 180
+const RADIAN = Math.PI / 180;
 
 const renderCustomizedLabel = ({
-  cx, cy, midAngle, innerRadius, outerRadius, percent
+  cx,
+  cy,
+  midAngle,
+  innerRadius,
+  outerRadius,
+  percent,
 }: any) => {
-  const radius = innerRadius + (outerRadius - innerRadius) * 0.5
-  const x = cx + radius * Math.cos(-midAngle * RADIAN)
-  const y = cy + radius * Math.sin(-midAngle * RADIAN)
+  const radius = innerRadius + (outerRadius - innerRadius) * 0.5;
+  const x = cx + radius * Math.cos(-midAngle * RADIAN);
+  const y = cy + radius * Math.sin(-midAngle * RADIAN);
 
-  if (percent < 0.05) return null
+  if (percent < 0.05) return null;
 
   return (
     <text
       x={x}
       y={y}
-      fill="white"
-      textAnchor={x > cx ? 'start' : 'end'}
+      fill="#ffffff"
+      textAnchor={x > cx ? "start" : "end"}
       dominantBaseline="central"
       fontSize={12}
-      fontWeight={500}
+      fontWeight={400}
     >
       {`${(percent * 100).toFixed(0)}%`}
     </text>
-  )
-}
+  );
+};
 
 export default function GenrePieChart({ data }: GenrePieChartProps) {
   return (
@@ -49,7 +61,6 @@ export default function GenrePieChart({ data }: GenrePieChartProps) {
               label={renderCustomizedLabel}
               outerRadius={100}
               innerRadius={50}
-              fill="#8884d8"
               dataKey="value"
               stroke="none"
             >
@@ -59,10 +70,10 @@ export default function GenrePieChart({ data }: GenrePieChartProps) {
             </Pie>
             <Tooltip
               contentStyle={{
-                backgroundColor: '#1a1a2e',
-                border: '1px solid rgba(255,255,255,0.1)',
-                borderRadius: '12px',
-                color: '#e2e8f0',
+                backgroundColor: "#1a1a2e",
+                border: "1px solid rgba(255,255,255,0.05)",
+                borderRadius: "8px",
+                color: "#ffffff",
               }}
             />
             <Legend
@@ -70,12 +81,14 @@ export default function GenrePieChart({ data }: GenrePieChartProps) {
               height={36}
               iconType="circle"
               formatter={(value: string) => (
-                <span style={{ color: '#94a3b8', fontSize: '12px' }}>{value}</span>
+                <span style={{ color: "#a0a0a0", fontSize: "12px" }}>
+                  {value}
+                </span>
               )}
             />
           </PieChart>
         </ResponsiveContainer>
       </CardContent>
     </Card>
-  )
+  );
 }

@@ -1,40 +1,66 @@
-import { cn } from '@/lib/utils'
-import { motion } from 'framer-motion'
+import { cn } from "@/lib/utils";
 
 interface CardProps {
-  children: React.ReactNode
-  className?: string
-  glow?: boolean
-  hover?: boolean
+  children: React.ReactNode;
+  className?: string;
 }
 
-export function Card({ children, className, glow = false, hover = true }: CardProps) {
+export function Card({ children, className }: CardProps) {
   return (
-    <motion.div
-      whileHover={hover ? { y: -4, transition: { duration: 0.3 } } : undefined}
-      className={cn(
-        'relative overflow-hidden rounded-2xl bg-surface/80 backdrop-blur-xl border border-white/5',
-        glow && 'glow-effect',
-        className
-      )}
+    <div
+      className={cn("rounded-lg bg-surface border border-white/5", className)}
     >
       {children}
-    </motion.div>
-  )
+    </div>
+  );
 }
 
-export function CardHeader({ children, className }: { children: React.ReactNode; className?: string }) {
-  return <div className={cn('p-6 pb-0', className)}>{children}</div>
+export function CardHeader({
+  children,
+  className,
+}: {
+  children: React.ReactNode;
+  className?: string;
+}) {
+  return <div className={cn("px-6 py-4", className)}>{children}</div>;
 }
 
-export function CardContent({ children, className }: { children: React.ReactNode; className?: string }) {
-  return <div className={cn('p-6', className)}>{children}</div>
+export function CardContent({
+  children,
+  className,
+}: {
+  children: React.ReactNode;
+  className?: string;
+}) {
+  return <div className={cn("px-6 py-4", className)}>{children}</div>;
 }
 
-export function CardTitle({ children, className }: { children: React.ReactNode; className?: string }) {
-  return <h3 className={cn('text-lg font-semibold text-text', className)}>{children}</h3>
+export function CardTitle({
+  children,
+  className,
+}: {
+  children: React.ReactNode;
+  className?: string;
+}) {
+  return (
+    <h3
+      className={cn("text-base font-light text-text tracking-tight", className)}
+    >
+      {children}
+    </h3>
+  );
 }
 
-export function CardDescription({ children, className }: { children: React.ReactNode; className?: string }) {
-  return <p className={cn('text-sm text-text-muted mt-1', className)}>{children}</p>
+export function CardDescription({
+  children,
+  className,
+}: {
+  children: React.ReactNode;
+  className?: string;
+}) {
+  return (
+    <p className={cn("text-sm text-text-muted mt-1 font-light", className)}>
+      {children}
+    </p>
+  );
 }

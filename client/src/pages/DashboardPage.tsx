@@ -1,5 +1,4 @@
 import { useEffect, useState } from "react";
-import { motion } from "framer-motion";
 import { useAppStore } from "@/store";
 import { spotifyApi } from "@/lib/api";
 import {
@@ -7,11 +6,8 @@ import {
   formatRelativeTime,
   getPersonalityEmoji,
 } from "@/lib/utils";
-import PageTransition from "@/components/animations/PageTransition";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/Card";
-import { Button } from "@/components/ui/Button";
 import { SkeletonCard } from "@/components/ui/Skeleton";
-import { Badge } from "@/components/ui/Badge";
 import GenrePieChart from "@/components/charts/GenrePieChart";
 import TrendsChart from "@/components/charts/TrendsChart";
 import ArtistsBarChart from "@/components/charts/ArtistsBarChart";
@@ -21,34 +17,21 @@ import {
   Clock,
   Music,
   Users,
-  Disc,
+  Headphones,
   Flame,
   Brain,
   Sparkles,
-  Headphones,
+  Disc,
   ChevronRight,
   Play,
 } from "lucide-react";
 import toast from "react-hot-toast";
 
 const timeRanges: { value: TimeRange; label: string }[] = [
-  { value: "short_term", label: "Last 4 Weeks" },
-  { value: "medium_term", label: "Last 6 Months" },
+  { value: "short_term", label: "4 Weeks" },
+  { value: "medium_term", label: "6 Months" },
   { value: "long_term", label: "All Time" },
 ];
-
-const containerVariants = {
-  hidden: { opacity: 0 },
-  visible: {
-    opacity: 1,
-    transition: { staggerChildren: 0.1 },
-  },
-};
-
-const itemVariants = {
-  hidden: { opacity: 0, y: 20 },
-  visible: { opacity: 1, y: 0 },
-};
 
 export default function DashboardPage() {
   const { timeRange, setTimeRange } = useAppStore();
@@ -62,38 +45,32 @@ export default function DashboardPage() {
         await spotifyApi.getRecentlyPlayed(50);
         const response = await spotifyApi.getDashboard(timeRange);
         setData(response.data);
-      } catch (error) {
-        console.error("Failed to load dashboard:", error);
+      } catch {
         toast.error("Failed to load dashboard data");
       } finally {
         setLoading(false);
       }
     };
-
     fetchDashboard();
   }, [timeRange]);
 
   if (loading) {
     return (
-      <PageTransition>
-        <div className="pt-24 pb-12 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto">
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {Array.from({ length: 6 }).map((_, i) => (
-              <SkeletonCard key={i} />
-            ))}
-          </div>
+      <div className="pt-20 pb-12 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+          {Array.from({ length: 6 }).map((_, i) => (
+            <SkeletonCard key={i} />
+          ))}
         </div>
-      </PageTransition>
+      </div>
     );
   }
 
   if (!data) {
     return (
-      <PageTransition>
-        <div className="pt-24 pb-12 px-4 text-center">
-          <p className="text-text-muted">Failed to load dashboard data</p>
-        </div>
-      </PageTransition>
+      <div className="pt-20 pb-12 px-4 text-center">
+        <p className="text-text-dim text-sm">Failed to load dashboard data</p>
+      </div>
     );
   }
 
@@ -111,408 +88,310 @@ export default function DashboardPage() {
   } = data;
 
   return (
-    <PageTransition>
-      <div className="pt-20 pb-12 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto">
-        {/* Header */}
-        <motion.div
-          initial={{ opacity: 0, y: -20 }}
-          animate={{ opacity: 1, y: 0 }}
-          className="mb-8"
-        >
-          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-            <div className="flex items-center gap-4">
-              {user.avatar && (
-                <motion.img
-                  whileHover={{ scale: 1.05 }}
-                  src={user.avatar}
-                  alt={user.displayName}
-                  className="w-14 h-14 rounded-full ring-2 ring-primary/30"
-                />
-              )}
+    <div className="pt-20 pb-12 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto space-y-6">
+      {/* Header */}
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 pb-2 border-b border-border">
+        <div className="flex items-center gap-3">
+          {user.avatar && (
+            <img
+              src={user.avatar}
+              alt={user.displayName}
+              className="w-8 h-8 rounded-full opacity-90"
+            />
+          )}
+          <div>
+            <p className="text-sm text-text">{user.displayName}</p>
+            <p className="text-[11px] text-text-dim">Music overview</p>
+          </div>
+        </div>
+
+        <div className="flex items-center gap-1 bg-surface rounded-lg p-1 w-fit">
+          {timeRanges.map((range) => (
+            <button
+              key={range.value}
+              onClick={() => setTimeRange(range.value)}
+              className={`px-3 py-1.5 rounded-md text-xs tracking-wide transition-colors ${
+                timeRange === range.value
+                  ? "bg-surface-light text-text"
+                  : "text-text-dim hover:text-text-muted"
+              }`}
+            >
+              {range.label}
+            </button>
+          ))}
+        </div>
+      </div>
+
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+        {[
+          {
+            icon: Headphones,
+            label: "Minutes",
+            value: formatNumber(stats.totalMinutes),
+          },
+          {
+            icon: Music,
+            label: "Tracks",
+            value: formatNumber(stats.totalTracks),
+          },
+          {
+            icon: Users,
+            label: "Artists",
+            value: formatNumber(stats.uniqueArtists),
+          },
+          { icon: Flame, label: "Streak", value: `${stats.streakDays}d` },
+        ].map((stat) => (
+          <Card key={stat.label} className="p-4">
+            <div className="flex items-center gap-3">
+              <stat.icon className="w-4 h-4 text-text-dim shrink-0" />
               <div>
-                <h1 className="text-2xl font-bold text-white font-display">
-                  Welcome back,{" "}
-                  <span className="gradient-text">{user.displayName}</span>
-                </h1>
-                <p className="text-text-muted text-sm">
-                  Here's what's happening with your music DNA
+                <p className="text-lg font-light nums text-text">
+                  {stat.value}
+                </p>
+                <p className="text-[11px] text-text-dim uppercase tracking-wide">
+                  {stat.label}
                 </p>
               </div>
             </div>
+          </Card>
+        ))}
+      </div>
 
-            <div className="flex items-center gap-2 bg-surface-light/60 rounded-xl p-1">
-              {timeRanges.map((range) => (
-                <button
-                  key={range.value}
-                  onClick={() => setTimeRange(range.value)}
-                  className={`px-4 py-2 rounded-lg text-sm font-medium transition-all ${
-                    timeRange === range.value
-                      ? "bg-primary text-white shadow-lg shadow-primary/25"
-                      : "text-text-muted hover:text-text"
-                  }`}
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
+        <Card className="lg:col-span-2">
+          <CardHeader>
+            <CardTitle className="section-label">Top Artists</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="space-y-1">
+              {topArtists.slice(0, 5).map((artist, i) => (
+                <div
+                  key={artist.artist.name}
+                  className="flex items-center gap-4 px-3 py-2.5 rounded-lg hover:bg-surface-light transition-colors cursor-pointer group"
                 >
-                  {range.label}
-                </button>
+                  <span className="w-5 text-[11px] text-text-dim text-right shrink-0">
+                    {i + 1}
+                  </span>
+                  <div className="w-9 h-9 rounded-md bg-surface-light overflow-hidden shrink-0">
+                    {artist.artist.image ? (
+                      <img
+                        src={artist.artist.image}
+                        alt={artist.artist.name}
+                        className="w-full h-full object-cover"
+                      />
+                    ) : (
+                      <Music className="w-4 h-4 text-text-dim m-auto mt-2.5" />
+                    )}
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <p className="text-sm text-text truncate">
+                      {artist.artist.name}
+                    </p>
+                    <p className="text-[11px] text-text-dim">
+                      {artist.playCount} plays
+                    </p>
+                  </div>
+                  <p className="text-xs text-text-dim">
+                    {artist.totalMinutes}m
+                  </p>
+                  <ChevronRight className="w-3.5 h-3.5 text-text-dim opacity-0 group-hover:opacity-100 transition-opacity" />
+                </div>
               ))}
             </div>
-          </div>
-        </motion.div>
+          </CardContent>
+        </Card>
 
-        <motion.div
-          variants={containerVariants}
-          initial="hidden"
-          animate="visible"
-          className="space-y-6"
-        >
-          {/* Stats Overview */}
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-            {[
-              {
-                icon: Headphones,
-                label: "Total Minutes",
-                value: formatNumber(stats.totalMinutes),
-                color: "text-primary-light",
-                bg: "bg-primary/10",
-              },
-              {
-                icon: Music,
-                label: "Tracks Played",
-                value: formatNumber(stats.totalTracks),
-                color: "text-accent",
-                bg: "bg-accent/10",
-              },
-              {
-                icon: Users,
-                label: "Unique Artists",
-                value: formatNumber(stats.uniqueArtists),
-                color: "text-accent-pink",
-                bg: "bg-accent-pink/10",
-              },
-              {
-                icon: Flame,
-                label: "Day Streak",
-                value: `${stats.streakDays} days`,
-                color: "text-accent-orange",
-                bg: "bg-accent-orange/10",
-              },
-            ].map((stat) => (
-              <motion.div key={stat.label} variants={itemVariants}>
-                <Card className="p-5">
-                  <div className="flex items-center gap-3">
+        <Card>
+          <CardHeader>
+            <CardTitle className="section-label flex items-center gap-2">
+              <Brain className="w-3.5 h-3.5" /> Personality
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="text-center space-y-3">
+            <div className="text-5xl">
+              {getPersonalityEmoji(personality.archetype)}
+            </div>
+            <div>
+              <p className="text-sm text-text font-medium">
+                {personality.archetype}
+              </p>
+              <p className="text-[11px] text-text-dim mt-1 leading-relaxed">
+                {personality.description}
+              </p>
+            </div>
+            <div className="flex flex-wrap gap-1.5 justify-center">
+              {personality.traits.map((trait) => (
+                <span key={trait} className="tag-pill">
+                  {trait}
+                </span>
+              ))}
+            </div>
+            <div className="space-y-2 pt-1">
+              {[
+                { label: "Energy", value: personality.energyLevel },
+                { label: "Uniqueness", value: personality.uniqueness },
+              ].map(({ label, value }) => (
+                <div
+                  key={label}
+                  className="flex items-center justify-between gap-3"
+                >
+                  <span className="text-[11px] text-text-dim w-16 text-left">
+                    {label}
+                  </span>
+                  <div className="flex-1 h-1 bg-surface-light rounded-full overflow-hidden">
                     <div
-                      className={`w-10 h-10 rounded-lg ${stat.bg} flex items-center justify-center`}
-                    >
-                      <stat.icon className={`w-5 h-5 ${stat.color}`} />
-                    </div>
-                    <div>
-                      <p className="text-2xl font-bold text-white">
-                        {stat.value}
-                      </p>
-                      <p className="text-xs text-text-muted">{stat.label}</p>
-                    </div>
+                      className="h-full bg-primary rounded-full transition-all duration-700"
+                      style={{ width: `${value}%` }}
+                    />
                   </div>
-                </Card>
-              </motion.div>
+                  <span className="text-[11px] text-text-dim w-8 text-right">
+                    {value}%
+                  </span>
+                </div>
+              ))}
+            </div>
+            <div className="grid grid-cols-2 gap-2 pt-1">
+              {[
+                { label: "Style", value: personality.listeningStyle },
+                { label: "Peak", value: personality.timeOfDay },
+              ].map(({ label, value }) => (
+                <div key={label} className="bg-surface-light rounded-lg p-2">
+                  <p className="text-[10px] text-text-dim uppercase tracking-wide">
+                    {label}
+                  </p>
+                  <p className="text-xs text-text mt-0.5">{value}</p>
+                </div>
+              ))}
+            </div>
+          </CardContent>
+        </Card>
+      </div>
+
+      <Card>
+        <CardContent className="p-5">
+          <div className="flex items-start gap-4">
+            <div className="shrink-0 mt-0.5">
+              <Sparkles className="w-4 h-4 text-text-dim" />
+            </div>
+            <div className="flex-1 min-w-0">
+              <div className="flex items-center gap-2 mb-1.5">
+                <span className="section-label">Music Taste Roast</span>
+                {roast.severity}
+              </div>
+              <p className="text-sm text-text-muted italic leading-relaxed">
+                "{roast.roast}"
+              </p>
+              <div className="flex gap-1.5 mt-2">
+                {roast.categories.map((cat) => (
+                  <span key={cat} className="tag-pill">
+                    #{cat}
+                  </span>
+                ))}
+              </div>
+            </div>
+          </div>
+        </CardContent>
+      </Card>
+
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+        <GenrePieChart data={genres} />
+        <ArtistsBarChart data={topArtists} />
+      </div>
+
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+        <ListeningHeatmap data={heatmap} />
+        <TrendsChart data={listeningTrends} />
+      </div>
+
+      <Card>
+        <CardHeader>
+          <CardTitle className="section-label flex items-center gap-2">
+            <Disc className="w-3.5 h-3.5" /> Top Tracks
+          </CardTitle>
+        </CardHeader>
+        <CardContent>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-1">
+            {topTracks.slice(0, 6).map((track, i) => (
+              <div
+                key={track.track.id}
+                className="flex items-center gap-3 p-2.5 rounded-lg hover:bg-surface-light transition-colors group cursor-pointer"
+              >
+                <span className="w-4 text-[11px] text-text-dim text-right shrink-0">
+                  {i + 1}
+                </span>
+                <div className="w-9 h-9 rounded-md bg-surface-light overflow-hidden shrink-0">
+                  {track.track.albumArt ? (
+                    <img
+                      src={track.track.albumArt}
+                      alt={track.track.name}
+                      className="w-full h-full object-cover"
+                    />
+                  ) : (
+                    <Music className="w-4 h-4 text-text-dim m-auto mt-2.5" />
+                  )}
+                </div>
+                <div className="flex-1 min-w-0">
+                  <p className="text-sm text-text truncate">
+                    {track.track.name}
+                  </p>
+                  <p className="text-[11px] text-text-dim truncate">
+                    {track.track.artist}
+                  </p>
+                </div>
+                <div className="flex items-center gap-2 shrink-0">
+                  <span className="text-[11px] text-text-dim">
+                    {track.playCount}×
+                  </span>
+                  {track.track.previewUrl && (
+                    <Play className="w-3.5 h-3.5 text-primary opacity-0 group-hover:opacity-100 transition-opacity" />
+                  )}
+                </div>
+              </div>
             ))}
           </div>
+        </CardContent>
+      </Card>
 
-          {/* Main Grid */}
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-            {/* Top Artists */}
-            <motion.div variants={itemVariants} className="lg:col-span-2">
-              <Card className="h-full">
-                <CardHeader className="flex flex-row items-center justify-between">
-                  <CardTitle>Top Artists</CardTitle>
-                  <Badge variant="primary">{timeRange.replace("_", " ")}</Badge>
-                </CardHeader>
-                <CardContent>
-                  <div className="space-y-3">
-                    {topArtists.slice(0, 5).map((artist, i) => (
-                      <motion.div
-                        key={artist.artist.name}
-                        initial={{ opacity: 0, x: -20 }}
-                        animate={{ opacity: 1, x: 0 }}
-                        transition={{ delay: i * 0.1 }}
-                        className="flex items-center gap-4 p-3 rounded-xl hover:bg-white/5 transition-colors group cursor-pointer"
-                      >
-                        <span className="w-8 text-center text-lg font-bold text-text-dim">
-                          {i + 1}
-                        </span>
-                        <div className="w-12 h-12 rounded-lg bg-gradient-to-br from-primary/20 to-accent/20 flex items-center justify-center overflow-hidden">
-                          {artist.artist.image ? (
-                            <img
-                              src={artist.artist.image}
-                              alt={artist.artist.name}
-                              className="w-full h-full object-cover"
-                            />
-                          ) : (
-                            <Music className="w-6 h-6 text-text-muted" />
-                          )}
-                        </div>
-                        <div className="flex-1 min-w-0">
-                          <p className="font-medium text-white truncate">
-                            {artist.artist.name}
-                          </p>
-                          <p className="text-sm text-text-muted">
-                            {artist.playCount} plays
-                          </p>
-                        </div>
-                        <div className="text-right">
-                          <p className="text-sm text-text-muted">
-                            {artist.totalMinutes} min
-                          </p>
-                        </div>
-                        <ChevronRight className="w-4 h-4 text-text-dim opacity-0 group-hover:opacity-100 transition-opacity" />
-                      </motion.div>
-                    ))}
-                  </div>
-                </CardContent>
-              </Card>
-            </motion.div>
-
-            {/* Personality Card */}
-            <motion.div variants={itemVariants}>
-              <Card className="h-full glow-effect">
-                <CardHeader>
-                  <CardTitle className="flex items-center gap-2">
-                    <Brain className="w-5 h-5 text-primary-light" />
-                    Music Personality
-                  </CardTitle>
-                </CardHeader>
-                <CardContent className="text-center">
-                  <motion.div
-                    animate={{ scale: [1, 1.1, 1] }}
-                    transition={{ duration: 2, repeat: Infinity }}
-                    className="text-6xl mb-4"
-                  >
-                    {getPersonalityEmoji(personality.archetype)}
-                  </motion.div>
-                  <h3 className="text-xl font-bold text-white mb-2">
-                    {personality.archetype}
-                  </h3>
-                  <p className="text-sm text-text-muted mb-4">
-                    {personality.description}
+      <Card>
+        <CardHeader>
+          <CardTitle className="section-label flex items-center gap-2">
+            <Clock className="w-3.5 h-3.5" /> Recently Played
+          </CardTitle>
+        </CardHeader>
+        <CardContent>
+          <div className="space-y-0.5">
+            {recentlyPlayed.slice(0, 10).map((item) => (
+              <div
+                key={item.id}
+                className="flex items-center gap-3 px-2 py-2 rounded-lg hover:bg-surface-light transition-colors"
+              >
+                <div className="w-8 h-8 rounded-md bg-surface-light overflow-hidden shrink-0">
+                  {item.track.albumArt ? (
+                    <img
+                      src={item.track.albumArt}
+                      alt={item.track.name}
+                      className="w-full h-full object-cover"
+                    />
+                  ) : (
+                    <Music className="w-3.5 h-3.5 text-text-dim m-auto mt-2" />
+                  )}
+                </div>
+                <div className="flex-1 min-w-0">
+                  <p className="text-sm text-text truncate">
+                    {item.track.name}
                   </p>
-                  <div className="flex flex-wrap gap-2 justify-center mb-4">
-                    {personality.traits.map((trait) => (
-                      <Badge key={trait} variant="primary">
-                        {trait}
-                      </Badge>
-                    ))}
-                  </div>
-                  <div className="grid grid-cols-2 gap-3 text-sm">
-                    <div className="bg-surface-light/60 rounded-lg p-2">
-                      <p className="text-text-dim">Style</p>
-                      <p className="text-white font-medium">
-                        {personality.listeningStyle}
-                      </p>
-                    </div>
-                    <div className="bg-surface-light/60 rounded-lg p-2">
-                      <p className="text-text-dim">Time</p>
-                      <p className="text-white font-medium">
-                        {personality.timeOfDay}
-                      </p>
-                    </div>
-                  </div>
-                  <div className="mt-4 space-y-2">
-                    <div className="flex items-center justify-between text-sm">
-                      <span className="text-text-muted">Energy Level</span>
-                      <div className="w-24 h-2 bg-surface-light rounded-full overflow-hidden">
-                        <motion.div
-                          initial={{ width: 0 }}
-                          animate={{ width: `${personality.energyLevel}%` }}
-                          transition={{ duration: 1, delay: 0.5 }}
-                          className="h-full bg-gradient-to-r from-primary to-accent rounded-full"
-                        />
-                      </div>
-                    </div>
-                    <div className="flex items-center justify-between text-sm">
-                      <span className="text-text-muted">Uniqueness</span>
-                      <div className="w-24 h-2 bg-surface-light rounded-full overflow-hidden">
-                        <motion.div
-                          initial={{ width: 0 }}
-                          animate={{ width: `${personality.uniqueness}%` }}
-                          transition={{ duration: 1, delay: 0.7 }}
-                          className="h-full bg-gradient-to-r from-accent-pink to-primary rounded-full"
-                        />
-                      </div>
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
-            </motion.div>
-          </div>
-
-          {/* Roast Section */}
-          <motion.div variants={itemVariants}>
-            <Card className="relative overflow-hidden">
-              <div className="absolute inset-0 bg-gradient-to-r from-accent-pink/10 via-transparent to-accent-orange/10" />
-              <CardContent className="relative p-6">
-                <div className="flex items-start gap-4">
-                  <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-accent-pink to-accent-orange flex items-center justify-center flex-shrink-0">
-                    <Sparkles className="w-6 h-6 text-white" />
-                  </div>
-                  <div className="flex-1">
-                    <div className="flex items-center gap-2 mb-2">
-                      <h3 className="font-semibold text-white">
-                        Music Taste Roast
-                      </h3>
-                      <Badge
-                        variant={
-                          roast.severity === "savage"
-                            ? "warning"
-                            : roast.severity === "medium"
-                              ? "accent"
-                              : "default"
-                        }
-                      >
-                        {roast.severity}
-                      </Badge>
-                    </div>
-                    <p className="text-text-muted italic">"{roast.roast}"</p>
-                    <div className="flex gap-2 mt-3">
-                      {roast.categories.map((cat) => (
-                        <span
-                          key={cat}
-                          className="text-xs text-text-dim bg-surface-light px-2 py-1 rounded-full"
-                        >
-                          #{cat}
-                        </span>
-                      ))}
-                    </div>
-                  </div>
+                  <p className="text-[11px] text-text-dim truncate">
+                    {item.track.artist}
+                  </p>
                 </div>
-              </CardContent>
-            </Card>
-          </motion.div>
-
-          {/* Charts Row */}
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-            <motion.div variants={itemVariants}>
-              <GenrePieChart data={genres} />
-            </motion.div>
-            <motion.div variants={itemVariants}>
-              <ArtistsBarChart data={topArtists} />
-            </motion.div>
+                <span className="text-[11px] text-text-dim shrink-0">
+                  {formatRelativeTime(item.playedAt)}
+                </span>
+              </div>
+            ))}
           </div>
-
-          {/* Heatmap & Trends */}
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-            <motion.div variants={itemVariants}>
-              <ListeningHeatmap data={heatmap} />
-            </motion.div>
-            <motion.div variants={itemVariants}>
-              <TrendsChart data={listeningTrends} />
-            </motion.div>
-          </div>
-
-          {/* Top Tracks */}
-          <motion.div variants={itemVariants}>
-            <Card>
-              <CardHeader className="flex flex-row items-center justify-between">
-                <CardTitle className="flex items-center gap-2">
-                  <Disc className="w-5 h-5 text-primary-light" />
-                  Top Tracks
-                </CardTitle>
-                <Button variant="ghost" size="sm">
-                  View All <ChevronRight className="w-4 h-4" />
-                </Button>
-              </CardHeader>
-              <CardContent>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-                  {topTracks.slice(0, 6).map((track, i) => (
-                    <motion.div
-                      key={track.track.id}
-                      initial={{ opacity: 0, y: 10 }}
-                      animate={{ opacity: 1, y: 0 }}
-                      transition={{ delay: i * 0.05 }}
-                      className="flex items-center gap-3 p-3 rounded-xl hover:bg-white/5 transition-colors group"
-                    >
-                      <div className="w-12 h-12 rounded-lg bg-gradient-to-br from-surface-light to-surface-hover flex items-center justify-center overflow-hidden flex-shrink-0">
-                        {track.track.albumArt ? (
-                          <img
-                            src={track.track.albumArt}
-                            alt={track.track.name}
-                            className="w-full h-full object-cover"
-                          />
-                        ) : (
-                          <Music className="w-5 h-5 text-text-muted" />
-                        )}
-                      </div>
-                      <div className="flex-1 min-w-0">
-                        <p className="text-sm font-medium text-white truncate">
-                          {track.track.name}
-                        </p>
-                        <p className="text-xs text-text-muted truncate">
-                          {track.track.artist}
-                        </p>
-                      </div>
-                      <div className="text-right flex-shrink-0">
-                        <p className="text-xs text-text-muted">
-                          {track.playCount}x
-                        </p>
-                        {track.track.previewUrl && (
-                          <button className="opacity-0 group-hover:opacity-100 transition-opacity">
-                            <Play className="w-4 h-4 text-primary-light" />
-                          </button>
-                        )}
-                      </div>
-                    </motion.div>
-                  ))}
-                </div>
-              </CardContent>
-            </Card>
-          </motion.div>
-
-          {/* Recently Played */}
-          <motion.div variants={itemVariants}>
-            <Card>
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <Clock className="w-5 h-5 text-accent" />
-                  Recently Played
-                </CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="space-y-2">
-                  {recentlyPlayed.slice(0, 10).map((item, i) => (
-                    <motion.div
-                      key={item.id}
-                      initial={{ opacity: 0, x: -10 }}
-                      animate={{ opacity: 1, x: 0 }}
-                      transition={{ delay: i * 0.03 }}
-                      className="flex items-center gap-3 p-2 rounded-lg hover:bg-white/5 transition-colors"
-                    >
-                      <div className="w-10 h-10 rounded-lg bg-surface-light flex items-center justify-center overflow-hidden flex-shrink-0">
-                        {item.track.albumArt ? (
-                          <img
-                            src={item.track.albumArt}
-                            alt={item.track.name}
-                            className="w-full h-full object-cover"
-                          />
-                        ) : (
-                          <Music className="w-4 h-4 text-text-muted" />
-                        )}
-                      </div>
-                      <div className="flex-1 min-w-0">
-                        <p className="text-sm text-white truncate">
-                          {item.track.name}
-                        </p>
-                        <p className="text-xs text-text-muted truncate">
-                          {item.track.artist}
-                        </p>
-                      </div>
-                      <span className="text-xs text-text-dim flex-shrink-0">
-                        {formatRelativeTime(item.playedAt)}
-                      </span>
-                    </motion.div>
-                  ))}
-                </div>
-              </CardContent>
-            </Card>
-          </motion.div>
-        </motion.div>
-      </div>
-    </PageTransition>
+        </CardContent>
+      </Card>
+    </div>
   );
 }
